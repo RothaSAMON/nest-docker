@@ -44,3 +44,10 @@ export class User extends Document {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+//THIS MAKE A OMIT PASSWORD FROM THE RESPONSE
+// UserSchema.methods.toJSON = function () {
+//   const obj = this.toObject();
+//   delete obj.password;
+//   return obj;
+// };

@@ -38,6 +38,7 @@ import { UserSchema } from './schema/user.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtStrategy } from './jwt.strategy';
 import { CookieStrategy } from './cookie.strategy';
+import { ProfileModule } from './profile/profile.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { CookieStrategy } from './cookie.strategy';
       }),
     }),
     MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
+    ProfileModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, CookieStrategy],
