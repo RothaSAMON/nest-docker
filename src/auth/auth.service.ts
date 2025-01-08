@@ -12,6 +12,7 @@ import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login.dto';
 import { Response } from 'express';
 import { CookieStrategy } from './cookie.strategy';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -36,12 +37,30 @@ export class AuthService {
   //   const token = this.jwtService.sign({ id: user._id });
   //   return { token };
   // }
-  async signUp(body: {
-    email: string;
-    password: string;
-    confirmPassword: string;
-  }): Promise<{ token: string }> {
-    const { email, password, confirmPassword } = body;
+  // ============================
+  // async signUp(body: {
+  //   email: string;
+  //   password: string;
+  //   confirmPassword: string;
+  // }): Promise<{ token: string }> {
+  //   const { email, password, confirmPassword } = body;
+
+  //   if (password !== confirmPassword) {
+  //     throw new BadRequestException('Passwords do not match');
+  //   }
+
+  //   const hashedPassword = await bcrypt.hash(password, 10);
+
+  //   const user = await this.userModel.create({
+  //     email,
+  //     password: hashedPassword,
+  //   });
+
+  //   const token = this.jwtService.sign({ id: user._id });
+  //   return { token };
+  // }
+  async signUp(createUserDto: CreateUserDto): Promise<{ token: string }> {
+    const { email, password, confirmPassword, ...rest } = createUserDto;
 
     if (password !== confirmPassword) {
       throw new BadRequestException('Passwords do not match');
@@ -50,6 +69,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await this.userModel.create({
+      ...rest,
       email,
       password: hashedPassword,
     });

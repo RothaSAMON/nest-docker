@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 // import { SignUpDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import { Response } from 'express';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -12,11 +13,16 @@ export class AuthController {
   // signUp(@Body() signUpDto: SignUpDto): Promise<{ token: string }> {
   //   return this.authService.signUp(signUpDto);
   // }
+  // ============================
+  // @Post('signup')
+  // signUp(
+  //   @Body() body: { email: string; password: string; confirmPassword: string },
+  // ): Promise<{ token: string }> {
+  //   return this.authService.signUp(body);
+  // }
   @Post('signup')
-  signUp(
-    @Body() body: { email: string; password: string; confirmPassword: string },
-  ): Promise<{ token: string }> {
-    return this.authService.signUp(body);
+  signUp(@Body() createUserDto: CreateUserDto): Promise<{ token: string }> {
+    return this.authService.signUp(createUserDto);
   }
 
   @Get('login')
