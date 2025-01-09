@@ -5,6 +5,7 @@ import {
   IsDate,
   IsNotEmpty,
   MinLength,
+  IsOptional,
 } from 'class-validator';
 
 export class CreateUserDto {
@@ -37,4 +38,8 @@ export class CreateUserDto {
   @IsString()
   @MinLength(8)
   confirmPassword: string;
+
+  @IsString()
+  @IsOptional()
+  imageProfile: string;
 }

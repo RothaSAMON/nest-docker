@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { Response } from 'express';
 import { CreateUserDto } from './dto/create-user.dto';
+import { Public } from './decorators/public.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -20,11 +21,15 @@ export class AuthController {
   // ): Promise<{ token: string }> {
   //   return this.authService.signUp(body);
   // }
+  // This route is public
+  @Public()
   @Post('signup')
   signUp(@Body() createUserDto: CreateUserDto): Promise<{ token: string }> {
     return this.authService.signUp(createUserDto);
   }
 
+  // This route is public
+  @Public()
   @Get('login')
   async login(@Body() loginDto: LoginDto, @Res() res: Response) {
     const result = await this.authService.login(loginDto, res);
