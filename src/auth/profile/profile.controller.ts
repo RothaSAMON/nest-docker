@@ -2,7 +2,6 @@ import {
   Controller,
   Get,
   Put,
-  Param,
   Body,
   Patch,
   UploadedFile,
@@ -14,35 +13,36 @@ import { User } from '../schema/user.schema';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerConfig } from 'src/config/multer.config';
+import { UserId } from '../decorators/param.decorator';
 
 @Controller('profile')
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
-  @Get(':id')
-  async getProfile(@Param('id') id: string): Promise<User> {
-    return this.profileService.getProfile(id);
+  @Get()
+  async getProfile(@UserId() userId: string): Promise<User> {
+    return this.profileService.getProfile(userId);
   }
 
-  @Put(':id')
+  @Put()
   async updateProfile(
-    @Param('id') id: string,
+    @UserId() userId: string,
     @Body() updateProfileDto: UpdateProfileDto,
   ): Promise<User> {
-    return this.profileService.updateProfile(id, updateProfileDto);
+    return this.profileService.updateProfile(userId, updateProfileDto);
   }
 
-  @Patch(':id/image')
+  @Patch('/image')
   @UseInterceptors(FileInterceptor('file', multerConfig))
   async updateImageProfile(
-    @Param('id') id: string,
+    @UserId() userId: string,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<User> {
-    return this.profileService.updateImageProfile(id, file);
+    return this.profileService.updateImageProfile(userId, file);
   }
 
-  @Delete(':id/image')
-  async deleteImageProfile(@Param('id') id: string): Promise<User> {
-    return this.profileService.deleteImageProfile(id);
+  @Delete('/image')
+  async deleteImageProfile(@UserId() userId: string): Promise<User> {
+    return this.profileService.deleteImageProfile(userId);
   }
 }
