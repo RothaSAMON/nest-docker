@@ -7,6 +7,7 @@ import {
   Patch,
   UploadedFile,
   UseInterceptors,
+  Delete,
 } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { User } from '../schema/user.schema';
@@ -38,5 +39,10 @@ export class ProfileController {
     @UploadedFile() file: Express.Multer.File,
   ): Promise<User> {
     return this.profileService.updateImageProfile(id, file);
+  }
+
+  @Delete(':id/image')
+  async deleteImageProfile(@Param('id') id: string): Promise<User> {
+    return this.profileService.deleteImageProfile(id);
   }
 }

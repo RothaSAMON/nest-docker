@@ -8,7 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from '../schema/user.schema';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
-import { uploadToS3 } from 'src/utils/s3.utils';
+import { deleteFromS3, uploadToS3 } from 'src/utils/s3.utils';
 
 @Injectable()
 export class ProfileService {
@@ -56,6 +56,24 @@ export class ProfileService {
     const uploadResult = await uploadToS3(file);
 
     user.imageProfile = uploadResult.Location;
+    await user.save();
+
+    return user;
+  }
+
+  async deleteImageProfile(userId: string): Promise<User> {
+    const user = await this.userModel
+      .findById(userId)
+      .select('-password')
+      .exec();
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const imageKey = user.imageProfile.split('/').pop();
+    await deleteFromS3(`ProfileImage/${imageKey}`);
+
+    user.imageProfile = null;
     await user.save();
 
     return user;
