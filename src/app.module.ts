@@ -4,11 +4,13 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { MainModule } from './main/main.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { ProfileModule } from './auth/profile/profile.module';
 import { configDotenv } from 'dotenv';
+import { CvModule } from './cv/cv.module';
+import { SectionModule } from './section/section.module';
+import { TemplateModule } from './template/template.module';
 configDotenv();
 
 @Module({
@@ -19,7 +21,9 @@ configDotenv();
     }),
     MongooseModule.forRoot(process.env.DATABASE_URL),
     AuthModule,
-    MainModule,
+    CvModule,
+    SectionModule,
+    TemplateModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }],

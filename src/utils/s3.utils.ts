@@ -25,10 +25,24 @@ export async function uploadToS3(
     ContentType: file.mimetype,
   };
 
-  // Perform the upload
+  // It perform the upload
   try {
     const result = await s3.upload(uploadParams).promise();
     return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function deleteFromS3(key: string): Promise<void> {
+  const deleteParams = {
+    Bucket: process.env.BUCKET_NAME,
+    Key: key,
+  };
+
+  // It perfoerm the delete from bucket
+  try {
+    await s3.deleteObject(deleteParams).promise();
   } catch (error) {
     throw error;
   }
