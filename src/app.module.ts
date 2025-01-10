@@ -7,6 +7,9 @@ import { AuthModule } from './auth/auth.module';
 import { MainModule } from './main/main.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { APP_GUARD } from '@nestjs/core';
+import { ProfileModule } from './auth/profile/profile.module';
+import { configDotenv } from 'dotenv';
+configDotenv();
 
 @Module({
   imports: [
