@@ -10,13 +10,6 @@ AWS.config.update({
   region: process.env.AWS_REGION,
 });
 
-// Log the credentials and region for debugging
-console.log('AWS Credentials:');
-console.log('Access Key:', process.env.ACCESS_KEY);
-console.log('Secret Key:', process.env.SECRET_ACCESS_KEY);
-console.log('Region:', process.env.AWS_REGION);
-console.log('Bucket Name:', process.env.BUCKET_NAME);
-
 const s3 = new AWS.S3();
 
 export async function uploadToS3(
