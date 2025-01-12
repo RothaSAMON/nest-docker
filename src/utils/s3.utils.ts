@@ -4,11 +4,6 @@ import { config } from 'dotenv';
 
 config();
 
-console.log('AWS Access Key:', process.env.ACCESS_KEY);
-console.log('AWS Secret Access Key:', process.env.SECRET_ACCESS_KEY);
-console.log('AWS Bucket Name:', process.env.BUCKET_NAME);
-console.log('AWS Region:', process.env.AWS_REGION);
-
 const s3 = new AWS.S3({
   accessKeyId: process.env.ACCESS_KEY,
   secretAccessKey: process.env.SECRET_ACCESS_KEY,
