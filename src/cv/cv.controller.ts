@@ -108,12 +108,15 @@ import {
   Delete,
   Req,
   UseGuards,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CvService } from './cv.service';
 import { Cv } from './schema/cv.schema';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateCvDto } from './dto/create-cv.dto';
 import { UpdateCvDto } from './dto/update-cv.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('cvs')
 @UseGuards(AuthGuard('jwt'))
@@ -121,9 +124,14 @@ export class CvController {
   constructor(private readonly cvService: CvService) {}
 
   @Post()
-  async create(@Body() createCvDto: CreateCvDto, @Req() req): Promise<Cv> {
+  @UseInterceptors(FileInterceptor('file'))
+  async create(
+    @Body() createCvDto: CreateCvDto,
+    @Req() req,
+    @UploadedFile() file?: Express.Multer.File,
+  ): Promise<Cv> {
     const userId = req.user._id;
-    return this.cvService.createCv({ ...createCvDto, userId });
+    return this.cvService.createCv({ ...createCvDto, userId }, file);
   }
 
   @Get()
@@ -137,11 +145,13 @@ export class CvController {
   }
 
   @Patch(':id')
+  @UseInterceptors(FileInterceptor('file'))
   async update(
     @Param('id') id: string,
     @Body() updateCvDto: UpdateCvDto,
+    @UploadedFile() file?: Express.Multer.File,
   ): Promise<Cv> {
-    return this.cvService.updateCv(id, updateCvDto);
+    return this.cvService.updateCv(id, updateCvDto, file);
   }
 
   @Delete(':id')
