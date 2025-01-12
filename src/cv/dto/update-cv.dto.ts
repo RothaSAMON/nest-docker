@@ -1,4 +1,5 @@
-import { IsString, IsUrl, IsOptional } from 'class-validator';
+import { IsString, IsUrl, IsOptional, IsMongoId } from 'class-validator';
+import { Types } from 'mongoose';
 
 export class UpdateCvDto {
   @IsString()
@@ -8,4 +9,8 @@ export class UpdateCvDto {
   @IsUrl()
   @IsOptional()
   previewImageUrl?: string;
+
+  @IsMongoId()
+  @IsOptional()
+  templateId?: Types.ObjectId;
 }

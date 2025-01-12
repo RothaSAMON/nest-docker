@@ -91,7 +91,10 @@ export class CvService {
   }
 
   async getCvById(id: string): Promise<any> {
-    const cv = await this.cvModel.findById(id).populate('userId').exec();
+    const cv = await this.cvModel
+      .findById(id)
+      .populate(['userId', 'templateId'])
+      .exec();
     if (!cv) throw new Error('CV not found');
     const sections = await this.sectionModel.find({ resumeId: id }).exec();
     return { ...cv.toObject(), sections };

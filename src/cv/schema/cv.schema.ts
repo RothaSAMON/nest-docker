@@ -17,6 +17,10 @@ export class Cv {
 
   @Prop()
   previewImageUrl: string;
+
+  // Add templateId as a reference to the Template model
+  @Prop({ type: Types.ObjectId, ref: 'Template', required: true })
+  templateId: Types.ObjectId;
 }
 
 export const ResumeSchema = SchemaFactory.createForClass(Cv);
