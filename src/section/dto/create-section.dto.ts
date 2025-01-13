@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsIn } from 'class-validator';
+import { IsString, IsNotEmpty, IsIn, IsOptional } from 'class-validator';
 
 export class CreateSectionDto {
   @IsNotEmpty()
@@ -18,6 +18,6 @@ export class CreateSectionDto {
   ])
   type: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   content: Record<string, any>;
 }

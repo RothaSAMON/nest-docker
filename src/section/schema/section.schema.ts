@@ -162,17 +162,63 @@ const requiredFieldsByType: Record<string, string[]> = {
   ],
 };
 
+// SectionSchema.pre('save', function (next) {
+//   const section = this as any;
+
+//   const requiredFieldsByType: Record<string, string[]> = {
+//     PersonalDetail: [
+//       'firstName',
+//       'lastName',
+//       'imageUrl',
+//       'position',
+//       'summary',
+//     ],
+//     Contact: ['phoneNumber', 'email', 'address'],
+//     Skills: ['name', 'level'],
+//     Experiences: ['jobTitle', 'position', 'startDate', 'endDate'],
+//     Education: ['schoolName', 'degreeMajor', 'startDate', 'endDate'],
+//     Languages: ['language', 'level'],
+//     Reference: [
+//       'firstName',
+//       'lastName',
+//       'position',
+//       'company',
+//       'email',
+//       'phoneNumber',
+//     ],
+//   };
+
+//   const requiredFields = requiredFieldsByType[section.type];
+
+//   if (!requiredFields) {
+//     return next(
+//       new BadRequestException(`Invalid section type: ${section.type}`),
+//     );
+//   }
+
+//   // FIX: Access fields directly from the content map using the get() method
+//   const missingFields = requiredFields.filter(
+//     (field) => !section.content.get(field),
+//   );
+
+//   if (missingFields.length > 0) {
+//     return next(
+//       new BadRequestException(
+//         `Validation Error: Missing required fields - ${missingFields.join(', ')}.`,
+//       ),
+//     );
+//   }
+
+//   next();
+// });
+
+// PersonalDetail schema
+
 SectionSchema.pre('save', function (next) {
   const section = this as any;
 
   const requiredFieldsByType: Record<string, string[]> = {
-    PersonalDetail: [
-      'firstName',
-      'lastName',
-      'imageUrl',
-      'position',
-      'summary',
-    ],
+    PersonalDetail: ['firstName', 'lastName'],
     Contact: ['phoneNumber', 'email', 'address'],
     Skills: ['name', 'level'],
     Experiences: ['jobTitle', 'position', 'startDate', 'endDate'],
@@ -196,15 +242,17 @@ SectionSchema.pre('save', function (next) {
     );
   }
 
-  // FIX: Access fields directly from the content map using the get() method
+  // Only check for completely missing content (null or undefined)
   const missingFields = requiredFields.filter(
-    (field) => !section.content.get(field),
+    (field) =>
+      section.content.get(field) === null ||
+      section.content.get(field) === undefined,
   );
 
   if (missingFields.length > 0) {
     return next(
       new BadRequestException(
-        `Validation Error: Missing required fields - ${missingFields.join(', ')}.`,
+        `Missing required fields: ${missingFields.join(', ')}`,
       ),
     );
   }
@@ -212,7 +260,6 @@ SectionSchema.pre('save', function (next) {
   next();
 });
 
-// PersonalDetail schema
 @Schema()
 export class PersonalDetail extends Section {
   @Prop() firstName: string;
