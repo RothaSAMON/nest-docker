@@ -24,13 +24,18 @@ export class AuthController {
   // This route is public
   @Public()
   @Post('signup')
-  signUp(@Body() createUserDto: CreateUserDto): Promise<{ token: string }> {
-    return this.authService.signUp(createUserDto);
+  async signUp(@Body() createUserDto: CreateUserDto, @Res() res: Response) {
+    const result = await this.authService.signUp(createUserDto);
+
+    return res
+      .cookie('token', result.data.token)
+      .status(HttpStatus.CREATED)
+      .json(result);
   }
 
   // This route is public
   @Public()
-  @Get('login')
+  @Post('login')
   async login(@Body() loginDto: LoginDto, @Res() res: Response) {
     const result = await this.authService.login(loginDto, res);
 

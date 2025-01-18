@@ -6,6 +6,7 @@ import {
   Body,
   Put,
   Delete,
+  Patch,
 } from '@nestjs/common';
 import { SectionService } from './section.service';
 import { Section } from './schema/section.schema';
@@ -32,7 +33,7 @@ export class SectionController {
     return this.sectionService.findSectionById(id);
   }
 
-  @Put(':id')
+  @Patch(':id')
   async updateSection(
     @Param('id') id: string,
     @Body() updateSectionDto: any,

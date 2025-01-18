@@ -124,8 +124,7 @@ const SectionTypes = [
   'Reference',
 ] as const;
 
-// Base schema for Section
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, discriminatorKey: 'type' })
 export class Section {
   @Prop({ type: Types.ObjectId, ref: 'Cv', required: true })
   resumeId: Types.ObjectId;
@@ -133,8 +132,8 @@ export class Section {
   @Prop({ required: true, enum: SectionTypes })
   type: string;
 
-  @Prop({ type: Map, of: mongoose.Schema.Types.Mixed })
-  content: Map<string, any>;
+  @Prop({ type: mongoose.Schema.Types.Mixed }) // Use Mixed to allow plain objects or arrays
+  content: Record<string, any> | any[];
 
   @Prop({ default: Date.now })
   createdAt: Date;
@@ -242,12 +241,29 @@ SectionSchema.pre('save', function (next) {
     );
   }
 
-  // Only check for completely missing content (null or undefined)
-  const missingFields = requiredFields.filter(
-    (field) =>
-      section.content.get(field) === null ||
-      section.content.get(field) === undefined,
-  );
+  const content = section.content;
+
+  // Handle content as an object or array
+  let missingFields: string[] = [];
+  if (Array.isArray(content)) {
+    // If content is an array, validate each object in the array
+    missingFields = requiredFields.filter((field) =>
+      content.some(
+        (item: any) => item[field] === undefined || item[field] === null,
+      ),
+    );
+  } else if (typeof content === 'object' && content !== null) {
+    // If content is an object, validate fields directly
+    missingFields = requiredFields.filter(
+      (field) => content[field] === undefined || content[field] === null,
+    );
+  } else {
+    return next(
+      new BadRequestException(
+        'Invalid content format: must be an object or array.',
+      ),
+    );
+  }
 
   if (missingFields.length > 0) {
     return next(
@@ -260,70 +276,158 @@ SectionSchema.pre('save', function (next) {
   next();
 });
 
+// PersonalDetail schema
 @Schema()
-export class PersonalDetail extends Section {
-  @Prop() firstName: string;
-  @Prop() lastName: string;
-  @Prop() imageUrl: string;
-  @Prop() position: string;
-  @Prop() summary: string;
+export class PersonalDetailContent {
+  @Prop({ required: true }) firstName: string;
+  @Prop({ required: true }) lastName: string;
+  @Prop() imageUrl?: string;
+  @Prop() position?: string;
+  @Prop() summary?: string;
 }
-export const PersonalDetailSchema =
-  SchemaFactory.createForClass(PersonalDetail);
+export const PersonalDetailContentSchema = SchemaFactory.createForClass(
+  PersonalDetailContent,
+);
 
 // Contact schema
 @Schema()
-export class Contact extends Section {
-  @Prop() phoneNumber: string;
-  @Prop() email: string;
-  @Prop() address: string;
+export class ContactContent {
+  @Prop({ required: true }) phoneNumber: string;
+  @Prop({ required: true }) email: string;
+  @Prop() address?: string;
 }
-export const ContactSchema = SchemaFactory.createForClass(Contact);
+export const ContactContentSchema =
+  SchemaFactory.createForClass(ContactContent);
 
 // Skills schema
 @Schema()
-export class Skills extends Section {
-  @Prop() name: string;
-  @Prop() level: string;
+export class SkillsContent {
+  @Prop({ required: true }) name: string;
+  @Prop({ required: true }) level: string;
 }
-export const SkillsSchema = SchemaFactory.createForClass(Skills);
+export const SkillsContentSchema = SchemaFactory.createForClass(SkillsContent);
 
 // Experiences schema
 @Schema()
-export class Experiences extends Section {
-  @Prop() jobTitle: string;
-  @Prop() position: string;
-  @Prop() startDate: Date;
-  @Prop() endDate: Date;
+export class ExperiencesContent {
+  @Prop({ required: true }) jobTitle: string;
+  @Prop() position?: string;
+  @Prop({ required: true }) startDate: Date;
+  @Prop({ required: true }) endDate: Date;
 }
-export const ExperiencesSchema = SchemaFactory.createForClass(Experiences);
+export const ExperiencesContentSchema =
+  SchemaFactory.createForClass(ExperiencesContent);
 
 // Education schema
 @Schema()
-export class Education extends Section {
-  @Prop() schoolName: string;
-  @Prop() degreeMajor: string;
-  @Prop() startDate: Date;
-  @Prop() endDate: Date;
+export class EducationContent {
+  @Prop({ required: true }) schoolName: string;
+  @Prop({ required: true }) degreeMajor: string;
+  @Prop({ required: true }) startDate: Date;
+  @Prop({ required: true }) endDate: Date;
 }
-export const EducationSchema = SchemaFactory.createForClass(Education);
+export const EducationContentSchema =
+  SchemaFactory.createForClass(EducationContent);
 
 // Languages schema
 @Schema()
-export class Languages extends Section {
-  @Prop() language: string;
-  @Prop() level: string;
+export class LanguagesContent {
+  @Prop({ required: true }) language: string;
+  @Prop({ required: true }) level: string;
 }
-export const LanguagesSchema = SchemaFactory.createForClass(Languages);
+export const LanguagesContentSchema =
+  SchemaFactory.createForClass(LanguagesContent);
 
 // Reference schema
 @Schema()
-export class Reference extends Section {
-  @Prop() firstName: string;
-  @Prop() lastName: string;
-  @Prop() position: string;
-  @Prop() company: string;
-  @Prop() email: string;
-  @Prop() phoneNumber: string;
+export class ReferenceContent {
+  @Prop({ required: true }) firstName: string;
+  @Prop({ required: true }) lastName: string;
+  @Prop({ required: true }) position: string;
+  @Prop({ required: true }) company: string;
+  @Prop({ required: true }) email: string;
+  @Prop({ required: true }) phoneNumber: string;
 }
-export const ReferenceSchema = SchemaFactory.createForClass(Reference);
+export const ReferenceContentSchema =
+  SchemaFactory.createForClass(ReferenceContent);
+
+// Attach discriminators to the Section schema
+// Add Discriminators for each type of section
+// SectionSchema.discriminator('personal', PersonalDetailContent);
+// SectionSchema.discriminator('contact', ContactContent);
+// SectionSchema.discriminator('skills', { type: [SkillsContent] });
+// SectionSchema.discriminator('experiences', { type: [ExperiencesContent] });
+// SectionSchema.discriminator('educations', { type: [EducationContent] });
+// SectionSchema.discriminator('languages', { type: [LanguagesContent] });
+// SectionSchema.discriminator('references', { type: [ReferenceContent] });
+
+// Attach discriminators to the Section schema
+SectionSchema.discriminator(
+  'PersonalDetail',
+  new mongoose.Schema({
+    content: {
+      type: mongoose.Schema.Types.Mixed, // Allow object
+      required: true,
+    },
+  }),
+);
+
+SectionSchema.discriminator(
+  'Contact',
+  new mongoose.Schema({
+    content: {
+      type: mongoose.Schema.Types.Mixed, // Allow object
+      required: true,
+    },
+  }),
+);
+
+SectionSchema.discriminator(
+  'Skills',
+  new mongoose.Schema({
+    content: {
+      type: [mongoose.Schema.Types.Mixed], // Array of objects
+      required: true,
+    },
+  }),
+);
+
+SectionSchema.discriminator(
+  'Experiences',
+  new mongoose.Schema({
+    content: {
+      type: [mongoose.Schema.Types.Mixed], // Array of objects
+      required: true,
+    },
+  }),
+);
+
+SectionSchema.discriminator(
+  'Education',
+  new mongoose.Schema({
+    content: {
+      type: [mongoose.Schema.Types.Mixed], // Array of objects
+      required: true,
+    },
+  }),
+);
+
+SectionSchema.discriminator(
+  'Languages',
+  new mongoose.Schema({
+    content: {
+      type: [mongoose.Schema.Types.Mixed], // Array of objects
+      required: true,
+    },
+  }),
+);
+
+SectionSchema.discriminator(
+  'Reference',
+  new mongoose.Schema({
+    content: {
+      type: [mongoose.Schema.Types.Mixed], // Array of objects
+      required: true,
+    },
+  }),
+);

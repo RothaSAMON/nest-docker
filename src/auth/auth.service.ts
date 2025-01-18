@@ -59,7 +59,9 @@ export class AuthService {
   //   const token = this.jwtService.sign({ id: user._id });
   //   return { token };
   // }
-  async signUp(createUserDto: CreateUserDto): Promise<{ token: string }> {
+  async signUp(
+    createUserDto: CreateUserDto,
+  ): Promise<{ message: string; data: { token: string } }> {
     const { email, password, confirmPassword, ...rest } = createUserDto;
 
     if (password !== confirmPassword) {
@@ -75,7 +77,7 @@ export class AuthService {
     });
 
     const token = this.jwtService.sign({ id: user._id });
-    return { token };
+    return { message: 'Sign up successfully', data: { token } };
   }
 
   async login(loginDto: LoginDto, res: Response): Promise<{ message: string }> {

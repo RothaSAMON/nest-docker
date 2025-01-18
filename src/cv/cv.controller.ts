@@ -117,12 +117,14 @@ import { AuthGuard } from '@nestjs/passport';
 import { CreateCvDto } from './dto/create-cv.dto';
 import { UpdateCvDto } from './dto/update-cv.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Public } from 'src/auth/decorators/public.decorator';
 
 @Controller('cvs')
 @UseGuards(AuthGuard('jwt'))
 export class CvController {
   constructor(private readonly cvService: CvService) {}
 
+  @Public()
   @Post()
   @UseInterceptors(FileInterceptor('file'))
   async create(
@@ -134,16 +136,19 @@ export class CvController {
     return this.cvService.createCv({ ...createCvDto, userId }, file);
   }
 
+  @Public()
   @Get()
   async findAll(): Promise<Cv[]> {
     return this.cvService.getAllCvs();
   }
 
+  @Public()
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<Cv> {
     return this.cvService.getCvById(id);
   }
 
+  @Public()
   @Patch(':id')
   @UseInterceptors(FileInterceptor('file'))
   async update(
@@ -154,6 +159,7 @@ export class CvController {
     return this.cvService.updateCv(id, updateCvDto, file);
   }
 
+  @Public()
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<Cv> {
     return this.cvService.deleteCv(id);
