@@ -4,8 +4,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model, Types } from 'mongoose';
 import { Section } from './schema/section.schema';
+import { uploadToS3 } from 'src/utils/s3.utils';
 
 @Injectable()
 export class SectionService {
@@ -49,12 +50,48 @@ export class SectionService {
     return section;
   }
 
-  async updateSection(id: string, updateSectionDto: any): Promise<Section> {
+  async updateSection(
+    resumeId: string,
+    type: string,
+    content: any,
+  ): Promise<Section> {
+    const convertedResumeId = new mongoose.Types.ObjectId(resumeId);
     const section = await this.sectionModel
-      .findByIdAndUpdate(id, updateSectionDto, { new: true })
+      .findOneAndUpdate(
+        { resumeId: convertedResumeId, type },
+        { $set: { content } },
+        { new: true },
+      )
+      .exec();
+    console.log('Section updated👋', section);
+    console.log('Resume ID:', resumeId);
+    console.log('Type:', type);
+    console.log('Content:', content);
+
+    if (!section) {
+      throw new NotFoundException(`Section with ID ${resumeId} not found`);
+    }
+    return section;
+  }
+
+  async updateImageUrl(
+    resumeId: string,
+    file: Express.Multer.File,
+  ): Promise<Section> {
+    const uploadResult = await uploadToS3(file);
+    const imageUrl = uploadResult.Location;
+
+    const section = await this.sectionModel
+      .findOneAndUpdate(
+        { resumeId: new Types.ObjectId(resumeId), type: 'PersonalDetail' },
+        { $set: { 'content.imageUrl': imageUrl } },
+        { new: true },
+      )
       .exec();
     if (!section) {
-      throw new NotFoundException(`Section with ID ${id} not found`);
+      throw new NotFoundException(
+        `PersonalDetail section not found for CV with ID ${resumeId}`,
+      );
     }
     return section;
   }

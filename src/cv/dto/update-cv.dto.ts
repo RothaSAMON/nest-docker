@@ -10,7 +10,11 @@ export class UpdateCvDto {
   @IsOptional()
   previewImageUrl?: string;
 
-  @IsMongoId()
+  // @IsMongoId()
+  // @IsOptional()
+  // templateId?: Types.ObjectId;
+
+  @IsString()
   @IsOptional()
-  templateId?: Types.ObjectId;
+  templateUrl: string;
 }

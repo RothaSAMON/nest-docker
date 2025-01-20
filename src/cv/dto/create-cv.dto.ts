@@ -10,6 +10,10 @@ export class CreateCvDto {
   @IsOptional()
   previewImageUrl?: string;
 
-  @IsMongoId()
-  templateId: Types.ObjectId;
+  // @IsMongoId()
+  // templateId: Types.ObjectId;
+
+  @IsString()
+  @IsOptional()
+  templateUrl: string;
 }

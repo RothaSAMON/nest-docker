@@ -120,11 +120,11 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Public } from 'src/auth/decorators/public.decorator';
 
 @Controller('cvs')
-@UseGuards(AuthGuard('jwt'))
+// @UseGuards(AuthGuard('jwt'))
 export class CvController {
   constructor(private readonly cvService: CvService) {}
 
-  @Public()
+  // @Public()
   @Post()
   @UseInterceptors(FileInterceptor('file'))
   async create(
@@ -136,32 +136,34 @@ export class CvController {
     return this.cvService.createCv({ ...createCvDto, userId }, file);
   }
 
-  @Public()
+  // @Public()
   @Get()
   async findAll(): Promise<Cv[]> {
     return this.cvService.getAllCvs();
   }
 
-  @Public()
+  // @Public()
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<Cv> {
     return this.cvService.getCvById(id);
   }
 
-  @Public()
+  // @Public()
   @Patch(':id')
   @UseInterceptors(FileInterceptor('file'))
   async update(
     @Param('id') id: string,
     @Body() updateCvDto: UpdateCvDto,
     @UploadedFile() file?: Express.Multer.File,
-  ): Promise<Cv> {
-    return this.cvService.updateCv(id, updateCvDto, file);
+  ): Promise<{ message: string; data: Cv }> {
+    const cv = await this.cvService.updateCv(id, updateCvDto, file);
+    return { message: 'CV updated successfully', data: cv };
   }
 
   @Public()
   @Delete(':id')
-  async delete(@Param('id') id: string): Promise<Cv> {
-    return this.cvService.deleteCv(id);
+  async delete(@Param('id') id: string): Promise<{ message: string }> {
+    await this.cvService.deleteCv(id);
+    return { message: 'CV deleted successfully' };
   }
 }
