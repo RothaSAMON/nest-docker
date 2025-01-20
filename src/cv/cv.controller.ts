@@ -110,6 +110,8 @@ import {
   UseGuards,
   UploadedFile,
   UseInterceptors,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { CvService } from './cv.service';
 import { Cv } from './schema/cv.schema';
@@ -138,8 +140,11 @@ export class CvController {
 
   // @Public()
   @Get()
-  async findAll(): Promise<Cv[]> {
-    return this.cvService.getAllCvs();
+  @HttpCode(HttpStatus.OK)
+  async findAll(@Req() req): Promise<{ message: string; data: Cv[] }> {
+    const userId = req.user._id;
+    const cvs = await this.cvService.getAllCvs(userId);
+    return { message: 'CVs retrieved successfully', data: cvs };
   }
 
   // @Public()

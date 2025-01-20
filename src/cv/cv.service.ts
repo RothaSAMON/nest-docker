@@ -41,8 +41,8 @@ export class CvService {
     return createdCv.save();
   }
 
-  async getAllCvs(): Promise<Cv[]> {
-    return this.cvModel.find().populate('userId').exec();
+  async getAllCvs(userId: string): Promise<Cv[]> {
+    return this.cvModel.find({ userId }).exec();
   }
 
   async getCvById(id: string): Promise<any> {
