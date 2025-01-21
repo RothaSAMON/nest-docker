@@ -28,4 +28,8 @@ configDotenv();
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }],
 })
-export class AppModule {}
+export class AppModule {
+  constructor() {
+    console.log('Database url', process.env.DATABASE_URLD);
+  }
+}
